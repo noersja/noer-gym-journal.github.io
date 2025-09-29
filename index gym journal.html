@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Journal Pro - Advanced Progress Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1f2937">
+    <meta name="description" content="Advanced gym journal with accurate timer and comprehensive tracking">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <button id="backBtn" class="back-btn hidden">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                </button>
+                <h1 id="headerTitle">Gym Journal Pro</h1>
+                <div class="header-actions">
+                    <button id="settingsBtn" class="settings-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="m12 1 1.27 2.76L16 5l-2.76 1.27L12 9l-1.27-2.76L8 5l2.76-1.27L12 1"/>
+                            <path d="m19 12 1.27 2.76L23 16l-2.76 1.27L19 20l-1.27-2.76L16 16l2.76-1.27L19 12"/>
+                            <path d="m5 12 1.27 2.76L9 16l-2.76 1.27L5 20l-1.27-2.76L1 16l2.76-1.27L5 12"/>
+                        </svg>
+                    </button>
+                    <button id="historyBtn" class="history-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Rest Timer Overlay -->
+        <div id="restTimer" class="rest-timer hidden">
+            <div class="timer-content">
+                <div class="timer-header">
+                    <h3>Rest Timer</h3>
+                    <button id="closeTimer" class="close-timer-btn">×</button>
+                </div>
+                <div class="timer-display">
+                    <div id="timerCircle" class="timer-circle">
+                        <div class="timer-text">
+                            <span id="timerTime">60</span>
+                            <small>seconds</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button id="timerPlay" class="timer-btn timer-btn--play">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5,3 19,12 5,21"/>
+                        </svg>
+                    </button>
+                    <button id="timerPause" class="timer-btn timer-btn--pause hidden">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="6" y="4" width="4" height="16"/>
+                            <rect x="14" y="4" width="4" height="16"/>
+                        </svg>
+                    </button>
+                    <button id="timerReset" class="timer-btn timer-btn--reset">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1,4 1,10 7,10"/>
+                            <path d="M3.51,15a9,9,0,0,0,14.85-3.36 8.5,8.5,0,0,0-4.9-8.21"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="timer-presets">
+                    <button class="preset-btn" data-time="30">30s</button>
+                    <button class="preset-btn active" data-time="60">1m</button>
+                    <button class="preset-btn" data-time="90">1:30</button>
+                    <button class="preset-btn" data-time="120">2m</button>
+                    <button class="preset-btn" data-time="180">3m</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Date/Time Selection Screen -->
+            <div id="workoutSetup" class="screen">
+                <div class="setup-header">
+                    <h2>Setup Workout</h2>
+                    <p>Pilih tanggal, waktu, dan split untuk sesi latihan</p>
+                </div>
+                
+                <div class="setup-form">
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Workout</label>
+                        <input type="date" id="workoutDate" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Waktu Mulai</label>
+                        <input type="time" id="workoutTime" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Lokasi</label>
+                        <select id="workoutLocation" class="form-control">
+                            <option value="gym">Gym</option>
+                            <option value="home">Home</option>
+                            <option value="outdoor">Outdoor</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Energy Level (1-10)</label>
+                        <input type="range" id="energyLevel" class="energy-slider" min="1" max="10" value="7">
+                        <div class="energy-display">
+                            <span>Low</span>
+                            <span id="energyValue">7</span>
+                            <span>High</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="continueToSplit" class="btn btn--primary btn--full-width">
+                    Lanjut ke Split Selection
+                </button>
+            </div>
+
+            <!-- Split Selection Screen -->
+            <div id="splitSelection" class="screen active">
+                <div class="welcome-section">
+                    <h2>Pilih Workout Split</h2>
+                    <p>Mulai sesi latihan Anda hari ini</p>
+                    
+                    <div class="quick-start">
+                        <button id="quickStartBtn" class="btn btn--outline">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                            Quick Start
+                        </button>
+                        <button id="setupWorkoutBtn" class="btn btn--secondary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="m12 1 1.27 2.76L16 5l-2.76 1.27L12 9l-1.27-2.76L8 5l2.76-1.27L12 1"/>
+                            </svg>
+                            Setup Workout
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="split-grid">
+                    <button class="split-card" data-split="push">
+                        <div class="split-icon">💪</div>
+                        <h3>Push</h3>
+                        <p>Chest • Shoulders • Triceps</p>
+                        <span class="exercise-count">7 exercises</span>
+                        <div class="split-preview">
+                            <small>Pec dec fly, Chest press, Shoulder press...</small>
+                        </div>
+                    </button>
+                    
+                    <button class="split-card" data-split="pull">
+                        <div class="split-icon">🏋️</div>
+                        <h3>Pull</h3>
+                        <p>Back • Biceps • Rear Delts</p>
+                        <span class="exercise-count">7 exercises</span>
+                        <div class="split-preview">
+                            <small>Lat pulldown, Seated row, Close grip...</small>
+                        </div>
+                    </button>
+                    
+                    <button class="split-card" data-split="leg">
+                        <div class="split-icon">🦵</div>
+                        <h3>Leg</h3>
+                        <p>Quads • Hamstrings • Calves</p>
+                        <span class="exercise-count">6 exercises</span>
+                        <div class="split-preview">
+                            <small>Squats, Leg press, Leg extensions...</small>
+                        </div>
+                    </button>
+                    
+                    <button class="split-card" data-split="upper">
+                        <div class="split-icon">💻</div>
+                        <h3>Upper</h3>
+                        <p>Full Upper Body</p>
+                        <span class="exercise-count">7 exercises</span>
+                        <div class="split-preview">
+                            <small>Lat pulldown, Seated row, Shoulder...</small>
+                        </div>
+                    </button>
+                    
+                    <button class="split-card" data-split="lower">
+                        <div class="split-icon">⚡</div>
+                        <h3>Lower</h3>
+                        <p>Legs • Glutes</p>
+                        <span class="exercise-count">6 exercises</span>
+                        <div class="split-preview">
+                            <small>Squats, Leg press, RDL, Bulgarian...</small>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="stats-preview">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalWorkouts">0</span>
+                        <span class="stat-label">Total Workouts</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="thisWeek">0</span>
+                        <span class="stat-label">This Week</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalVolume">0</span>
+                        <span class="stat-label">Total Volume</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise List Screen -->
+            <div id="exerciseList" class="screen">
+                <div class="workout-header">
+                    <div class="workout-info">
+                        <h2 id="currentSplitTitle">Push Workout</h2>
+                        <p id="currentSplitDesc">Chest • Shoulders • Triceps</p>
+                        <div class="workout-meta">
+                            <span id="workoutStartTime" class="workout-time">Started: --:--</span>
+                            <span id="workoutDuration" class="workout-duration">00:00</span>
+                        </div>
+                    </div>
+                    <div class="session-volume">
+                        <span class="volume-label">Session Volume</span>
+                        <span id="sessionVolume" class="volume-value">0 kg</span>
+                        <div class="auto-save-indicator">
+                            <span id="autoSaveStatus" class="auto-save-status">✅ Auto-saved</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise Cards Container - This is the main area that shows exercises -->
+                <div id="exerciseContainer" class="exercise-container">
+                    <!-- Exercise cards will be dynamically populated here by JavaScript -->
+                    <!-- Each exercise will be displayed as a clickable card -->
+                </div>
+
+                <div class="workout-actions">
+                    <button id="startRestTimer" class="btn btn--outline rest-timer-trigger hidden">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                        Start Rest Timer
+                    </button>
+                    <button id="finishWorkoutBtn" class="btn btn--primary btn--full-width">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,11 12,14 22,4"/>
+                            <path d="M21,12v7a2,2,0,0,1-2,2H5a2,2,0,0,1-2-2V5a2,2,0,0,1,2-2h11"/>
+                        </svg>
+                        Selesaikan Workout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Notes Screen -->
+            <div id="progressNotes" class="screen">
+                <div class="notes-header">
+                    <h2>Progress Notes</h2>
+                    <p>Catatan untuk sesi latihan ini</p>
+                </div>
+
+                <form id="progressForm" class="progress-form">
+                    <div class="form-group">
+                        <label class="form-label">Session Rating (1-10)</label>
+                        <input type="range" id="sessionRating" class="energy-slider" min="1" max="10" value="7">
+                        <div class="energy-display">
+                            <span>Poor</span>
+                            <span id="ratingValue">7</span>
+                            <span>Excellent</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Highlights</label>
+                        <textarea id="highlights" class="form-control" rows="3" placeholder="Apa yang berjalan dengan baik hari ini?"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Weak Points</label>
+                        <textarea id="weakPoints" class="form-control" rows="3" placeholder="Area yang perlu diperbaiki..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Adjustments</label>
+                        <textarea id="adjustments" class="form-control" rows="3" placeholder="Perubahan untuk sesi berikutnya..."></textarea>
+                    </div>
+
+                    <div class="workout-summary">
+                        <h3>Ringkasan Workout</h3>
+                        <div class="summary-stats">
+                            <div class="summary-item">
+                                <span class="summary-label">Total Volume</span>
+                                <span id="finalVolume" class="summary-value">0 kg</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Duration</span>
+                                <span id="finalDuration" class="summary-value">00:00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Exercises</span>
+                                <span id="totalExercises" class="summary-value">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Sets</span>
+                                <span id="totalSets" class="summary-value">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="exportData" class="btn btn--outline">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7,10 12,15 17,10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export Data
+                        </button>
+                        <button type="submit" class="btn btn--primary">
+                            Simpan Workout
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- History Screen -->
+            <div id="historyScreen" class="screen">
+                <div class="history-header">
+                    <h2>Riwayat Workout</h2>
+                    <p>Lihat progress Anda dari waktu ke waktu</p>
+                    
+                    <div class="history-controls">
+                        <button id="importData" class="btn btn--outline">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17,8 12,3 7,8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Import Data
+                        </button>
+                        <button id="clearHistory" class="btn btn--outline btn--danger">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3,6 5,6 21,6"/>
+                                <path d="m19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"/>
+                                <line x1="10" y1="11" x2="10" y2="17"/>
+                                <line x1="14" y1="11" x2="14" y2="17"/>
+                            </svg>
+                            Clear History
+                        </button>
+                    </div>
+                </div>
+
+                <div id="historyContainer" class="history-container">
+                    <!-- History will be populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Exercise Modal -->
+        <div id="exerciseModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h3 id="modalExerciseName">Exercise Name</h3>
+                        <p id="modalExerciseMuscle" class="exercise-muscle">Muscle Group</p>
+                    </div>
+                    <button id="closeModal" class="close-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m6 6 12 12M6 18 18 6"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="exercise-volume">
+                        <span class="volume-label">Exercise Volume</span>
+                        <span id="exerciseVolume" class="volume-value">0 kg</span>
+                    </div>
+
+                    <div id="setsContainer" class="sets-container">
+                        <!-- Sets will be populated by JavaScript -->
+                    </div>
+
+                    <div class="modal-actions">
+                        <button id="addSetBtn" class="btn btn--secondary">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Tambah Set
+                        </button>
+                        <button id="finishExercise" class="btn btn--primary">
+                            Selesai & Start Rest
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmModal" class="modal hidden">
+            <div class="modal-content modal-content--small">
+                <div class="modal-header">
+                    <h3 id="confirmTitle">Konfirmasi</h3>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmMessage">Apakah Anda yakin?</p>
+                    <div class="form-actions">
+                        <button id="confirmCancel" class="btn btn--outline">Batal</button>
+                        <button id="confirmOk" class="btn btn--primary">Ya</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Set Row Template -->
+        <template id="setRowTemplate">
+            <div class="set-row">
+                <div class="set-number">1</div>
+                <div class="set-inputs">
+                    <select class="form-control set-type">
+                        <option value="working">Working</option>
+                        <option value="warmup">Warm up</option>
+                        <option value="failure">Failure</option>
+                    </select>
+                    <input type="number" class="form-control weight-input" placeholder="Berat (kg)" min="0" step="0.5">
+                    <input type="number" class="form-control reps-input" placeholder="Reps" min="0" step="1">
+                    <select class="form-control rpe-input">
+                        <option value="">RPE</option>
+                        <option value="6" data-color="#22c55e">6 - Bisa 4+ reps lagi</option>
+                        <option value="7" data-color="#84cc16">7 - Bisa 3 reps lagi</option>
+                        <option value="8" data-color="#eab308">8 - Bisa 2 reps lagi</option>
+                        <option value="9" data-color="#f97316">9 - Bisa 1 rep lagi</option>
+                        <option value="10" data-color="#ef4444">10 - Tidak bisa lagi</option>
+                    </select>
+                </div>
+                <div class="set-actions">
+                    <button class="start-rest-btn" title="Start Rest Timer">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12,6 12,12 16,14"/>
+                        </svg>
+                    </button>
+                    <button class="delete-set-btn" title="Delete Set">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m6 6 12 12M6 18 18 6"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        <!-- File Input for Import -->
+        <input type="file" id="fileInput" accept=".json" style="display: none">
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
